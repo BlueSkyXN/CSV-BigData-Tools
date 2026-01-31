@@ -48,6 +48,9 @@ def split_text(input_file, output_dir, chunk_size=200000):
     file_info = []
     current_chunk = 0
     line_count = 0
+    # Note: Manual file handle management is used here instead of context managers
+    # because we need to keep the output file open across multiple loop iterations
+    # and close/reopen it at chunk boundaries during streaming processing
     f_out = None
     
     try:

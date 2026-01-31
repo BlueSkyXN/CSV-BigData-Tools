@@ -53,7 +53,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "csv-to-json=csv_bigdata_tools.converters.json_to_csv:main",
+            "json-to-csv=csv_bigdata_tools.converters.json_to_csv:main",
             "csv-split=csv_bigdata_tools.split.split_csv:main",
             "json-split=csv_bigdata_tools.split.split_json:main",
             "jsonl-split=csv_bigdata_tools.split.split_json_line_delimited:main",

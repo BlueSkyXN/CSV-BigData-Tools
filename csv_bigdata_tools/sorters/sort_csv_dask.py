@@ -30,6 +30,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Configuration constants
+CHUNKS_BEFORE_WRITE = 10  # Number of chunks to process before writing to temp file
+DEFAULT_PARTITIONS = 500  # Default number of partitions for Dask processing
+
 
 def sort_csv_with_dask(input_file, output_file, sort_column='qq_number',
                        chunksize=10**8, max_memory_gb=30, n_workers=10,
@@ -101,8 +105,8 @@ def sort_csv_with_dask(input_file, output_file, sort_column='qq_number',
             sorted_chunk.drop(columns=['_padded_sort_column'], inplace=True)
             
             # Merge multiple chunks before writing to temp file
-            if i % 10 == 0 and not concatenated_chunk.empty:
-                temp_file = f'temp_sorted_chunk_{i // 10}.csv'
+            if i % CHUNKS_BEFORE_WRITE == 0 and not concatenated_chunk.empty:
+                temp_file = f'temp_sorted_chunk_{i // CHUNKS_BEFORE_WRITE}.csv'
                 concatenated_chunk.to_csv(temp_file, index=False, header=False, mode='a')
                 temp_files.append(temp_file)
                 concatenated_chunk = pd.DataFrame()
@@ -142,7 +146,7 @@ def sort_csv_with_dask(input_file, output_file, sort_column='qq_number',
         ddf.columns = column_names
         
         # Increase partitions for better parallelism
-        ddf = ddf.repartition(npartitions=500)
+        ddf = ddf.repartition(npartitions=DEFAULT_PARTITIONS)
         ddf = ddf.map_partitions(lambda df: df.sort_values(by=sort_column))
         
         # Write final result
